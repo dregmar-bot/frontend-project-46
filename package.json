@@ -6,8 +6,14 @@
   "bin": {
     "gendiff": "bin/gendiff.js"
   },
+  "scripts": {
+    "test": "npx jest"
+  },
   "dependencies": {
     "commander": "^10.0.0",
     "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "jest": "^29.5.0"
   }
 }
