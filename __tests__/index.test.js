@@ -14,3 +14,17 @@ test('findDiff in 2 jsons', () => {
 }`;
   expect(findDiff(pathToJson1, pathToJson2)).toBe(result);
 });
+test('findDiff in 2 yamls', () => {
+  const pathToYml1 = getFixturePath('file1.yml');
+  const pathToYml2 = getFixturePath('file2.yaml');
+  const result = `{\n - follow: false\n   host: hexlet.io\n - proxy: 123.234.53.22\n - timeout: 50\n + timeout: 20\n + verbose: true
+}`;
+  expect(findDiff(pathToYml1, pathToYml2)).toBe(result);
+});
+test('findDiff in yml and json', () => {
+  const pathToYml1 = getFixturePath('file1.yml');
+  const pathToJson2 = getFixturePath('file2.json');
+  const result = `{\n - follow: false\n   host: hexlet.io\n - proxy: 123.234.53.22\n - timeout: 50\n + timeout: 20\n + verbose: true
+}`;
+  expect(findDiff(pathToYml1, pathToJson2)).toBe(result);
+});
