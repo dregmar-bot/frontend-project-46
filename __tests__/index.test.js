@@ -9,7 +9,6 @@ const getFixturePath = (filename) => join(__dirname, '..', '__fixtures__', filen
 
 test('findDiff in 2 jsons', () => {
   const pathToJson1 = getFixturePath('file1.json');
-  console.log(pathToJson1);
   const pathToJson2 = getFixturePath('file2.json');
   const result = `{\n - follow: false\n   host: hexlet.io\n - proxy: 123.234.53.22\n - timeout: 50\n + timeout: 20\n + verbose: true
 }`;
