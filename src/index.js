@@ -1,14 +1,5 @@
 import { readFileSync } from 'node:fs';
 import _ from 'lodash';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const getFixturePath = (filename) => join(__dirname, '..', '__fixtures__', filename);
-const readFile = (filename) => readFileSync(getFixturePath(filename), 'utf-8');
-
-
 
 const findDiff = (path1, path2) => {
   const json1 = JSON.parse(readFileSync(path1));
@@ -19,24 +10,21 @@ const findDiff = (path1, path2) => {
     const addString = (wantedKey, module = '') => {
       switch (module) {
         case '+':
-          acc += `
-  + ${key}: ${json2[key]}`;
-          break
+          acc += `\n + ${key}: ${json2[key]}`;
+          break;
         case '-':
-          acc += `
-  - ${key}: ${json1[key]}`;
-          break
+          acc += `\n - ${key}: ${json1[key]}`;
+          break;
         case '':
-          acc += `
-    ${key}: ${json1[key]}`;
-          break
+          acc += `\n   ${key}: ${json1[key]}`;
+          break;
         default:
-         throw new Error(`Unexpected module ${module}`);
+          throw new Error(`Unexpected module ${module}`);
       }
-    }
+    };
     if (_.has(json1, key)) {
       if (json1[key] === json2[key]) {
-        addString(key)
+        addString(key);
         return acc;
       }
       addString(key, '-');
@@ -44,11 +32,10 @@ const findDiff = (path1, path2) => {
     if (_.has(json2, key)) {
       addString(key, '+');
     }
-    return acc
+    return acc;
   }, '');
-  return `{ ${preparedString} 
-}`;
-}
-
+  return `{${preparedString}\n}`;
+};
 
 export default findDiff;
+console.log(findDiff('../__fixtures__/file1.json', '../__fixtures__/file2.json'));
