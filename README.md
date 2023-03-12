@@ -8,3 +8,5 @@
 asciinema with demonstation step 3
 
 asciinema with demonstation step 4
+
+asciinema with demonstation step 6
