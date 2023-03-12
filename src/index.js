@@ -1,48 +1,41 @@
 import { readFileSync } from 'node:fs';
 import _ from 'lodash';
-import path from 'path';
 import parseFile from './parsers.js';
+import { getValue, isObject, getExtension } from './utilts.js';
+import makeStylish from './stylish.js';
 
-const getValue = (obj, key) => obj[key];
-const addDataToString = (actualStr, obj1, obj2, wantedKey, module = '') => {
-  let newStr = actualStr;
-  switch (module) {
-    case '+':
-      newStr += `\n + ${wantedKey}: ${getValue(obj2, wantedKey)}`;
-      break;
-    case '-':
-      newStr += `\n - ${wantedKey}: ${getValue(obj1, wantedKey)}`;
-      break;
-    case '':
-      newStr += `\n   ${wantedKey}: ${getValue(obj1, wantedKey)}`;
-      break;
-    default:
-      throw new Error(`Unexpected module ${module}`);
-  }
-  return newStr;
-};
-const getExtension = (filepath) => path.extname(filepath);
-
-const findDiff = (path1, path2) => {
+const findDiff = (path1, path2, formatter = 'stylish') => {
   const file1 = parseFile(readFileSync(path1), getExtension(path1));
   const file2 = parseFile(readFileSync(path2), getExtension(path2));
-  const mergedFile = Object.assign(_.cloneDeep(file1), file2);
-  const keys = _.sortBy(Object.keys(mergedFile));
-  const preparedString = keys.reduce((acc, key) => {
-    let newAcc = acc;
-    if (_.has(file1, key)) {
-      if (file1[key] === file2[key]) {
-        newAcc = addDataToString(newAcc, file1, file2, key);
-        return newAcc;
+  const prepareTree = (obj1, obj2) => {
+    const mergedFile = Object.assign(_.cloneDeep(obj1), obj2);
+    const keys = _.sortBy(Object.keys(mergedFile));
+    return keys.reduce((acc, key) => {
+      const newAcc = acc;
+      if (isObject(getValue(obj1, key)) && isObject(getValue(obj2, key))) {
+        const children = prepareTree(getValue(obj1, key), getValue(obj2, key));
+        newAcc.push({ name: key, children });
+      } else if (_.isEqual(getValue(obj1, key), getValue(obj2, key))) {
+        const value = getValue(obj1, key);
+        newAcc.push({ name: key, status: '  ', value });
+      } else {
+        if (_.has(obj1, key)) {
+          const value = getValue(obj1, key);
+          newAcc.push({ name: key, status: '- ', value });
+        }
+        if (_.has(obj2, key)) {
+          const value = getValue(obj2, key);
+          newAcc.push({ name: key, status: '+ ', value });
+        }
       }
-      newAcc = addDataToString(newAcc, file1, file2, key, '-');
-    }
-    if (_.has(file2, key)) {
-      newAcc = addDataToString(newAcc, file1, file2, key, '+');
-    }
-    return newAcc;
-  }, '');
-  return `{${preparedString}\n}`;
+      return newAcc;
+    }, []);
+  };
+  const tree = prepareTree(file1, file2);
+  if (formatter === 'stylish') {
+    return makeStylish(tree);
+  }
+  return makeStylish(tree);
 };
 
 export default findDiff;
