@@ -7,6 +7,8 @@ const makeFormatting = (tree, formatter) => {
       return makeStylish(tree);
     case 'plain':
       return makePlain(tree);
+    case 'json':
+      return JSON.stringify(tree);
     default:
       throw new Error(`Unexpected formatter ${formatter}`);
   }
