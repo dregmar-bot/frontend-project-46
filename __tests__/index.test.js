@@ -3,8 +3,9 @@ import {
 } from '@jest/globals';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import findDiff from '../src/index.js';
+import genDiff from '../src/index.js';
 
+/* eslint-disable */
 let __filename;
 let __dirname;
 let getFixturePath;
@@ -63,6 +64,7 @@ Property 'group1.baz' was updated. From 'bas' to 'bars'
 Property 'group1.nest' was updated. From [complex value] to 'str'
 Property 'group2' was removed
 Property 'group3' was added with value: [complex value]`;
+const jsonResult = '[{"name":"common","children":[{"name":"follow","status":"added","value":false},{"name":"setting1","status":"unchanged","value":"Value 1"},{"name":"setting2","status":"removed","value":200},{"name":"setting3","status":"updated","value":[true,null]},{"name":"setting4","status":"added","value":"blah blah"},{"name":"setting5","status":"added","value":{"key5":"value5"}},{"name":"setting6","children":[{"name":"doge","children":[{"name":"wow","status":"updated","value":["","so much"]}]},{"name":"key","status":"unchanged","value":"value"},{"name":"ops","status":"added","value":"vops"}]}]},{"name":"group1","children":[{"name":"baz","status":"updated","value":["bas","bars"]},{"name":"foo","status":"unchanged","value":"bar"},{"name":"nest","status":"updated","value":[{"key":"value"},"str"]}]},{"name":"group2","status":"removed","value":{"abc":12345,"deep":{"id":45}}},{"name":"group3","status":"added","value":{"deep":{"id":{"number":45}},"fee":100500}}]';
 
 beforeAll(() => {
   __filename = fileURLToPath(import.meta.url);
@@ -70,21 +72,27 @@ beforeAll(() => {
   getFixturePath = (filename) => join(__dirname, '..', '__fixtures__', filename);
 });
 
-test('findDiff in 2 jsons default formatter', () => {
+test('genDiff in 2 jsons to default format', () => {
   const pathToJson1 = getFixturePath('file1.json');
   const pathToJson2 = getFixturePath('file2.json');
-  const diff = findDiff(pathToJson1, pathToJson2);
+  const diff = genDiff(pathToJson1, pathToJson2);
   expect(diff).toStrictEqual(stylishResult);
 });
-test('findDiff in yml and yaml stylish formatter', () => {
+test('genDiff in yml and yaml to stylish format', () => {
   const pathToYml1 = getFixturePath('file1.yml');
   const pathToYml2 = getFixturePath('file2.yaml');
-  const diff = findDiff(pathToYml1, pathToYml2, 'stylish');
+  const diff = genDiff(pathToYml1, pathToYml2, 'stylish');
   expect(diff).toBe(stylishResult);
 });
-test('findDiff in yml and json plain formatter', () => {
+test('genDiff in json and yml to plain format', () => {
   const pathToYml1 = getFixturePath('file1.yml');
   const pathToJson2 = getFixturePath('file2.json');
-  const diff = findDiff(pathToYml1, pathToJson2, 'plain');
+  const diff = genDiff(pathToYml1, pathToJson2, 'plain');
   expect(diff).toBe(plainResult);
+});
+test('genDiff in 2 yml to json format', () => {
+  const pathToJson1 = getFixturePath('file1.yml');
+  const pathToJson2 = getFixturePath('file2.yaml');
+  const diff = genDiff(pathToJson1, pathToJson2, 'json');
+  expect(diff).toBe(jsonResult);
 });

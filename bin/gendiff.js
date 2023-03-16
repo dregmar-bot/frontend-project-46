@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 import { program } from 'commander';
-import findDiff from '../src/index.js';
+import genDiff from '../src/index.js';
 
 const options = program.opts();
 const command = (filepath1, filepath2) => {
-  console.log(findDiff(filepath1, filepath2, options.format));
+  console.log(genDiff(filepath1, filepath2, options.format));
 };
 
 program

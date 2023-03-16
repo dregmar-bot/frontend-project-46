@@ -4,7 +4,7 @@ import parseFile from './parsers.js';
 import { getValue, isObject, getExtension } from './utilts.js';
 import makeFormatting from '../formatters/index.js';
 
-const findDiff = (path1, path2, formatter = 'stylish') => {
+const genDiff = (path1, path2, formatter = 'stylish') => {
   const file1 = parseFile(readFileSync(path1), getExtension(path1));
   const file2 = parseFile(readFileSync(path2), getExtension(path2));
   const prepareTree = (obj1, obj2) => {
@@ -40,4 +40,4 @@ const findDiff = (path1, path2, formatter = 'stylish') => {
   return makeFormatting(tree, formatter);
 };
 
-export default findDiff;
+export default genDiff;
