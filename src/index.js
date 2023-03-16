@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import _ from 'lodash';
 import parseFile from './parsers.js';
 import { getValue, isObject, getExtension } from './utilts.js';
-import makeStylish from './stylish.js';
+import makeFormatting from '../formatters/index.js';
 
 const findDiff = (path1, path2, formatter = 'stylish') => {
   const file1 = parseFile(readFileSync(path1), getExtension(path1));
@@ -17,25 +17,27 @@ const findDiff = (path1, path2, formatter = 'stylish') => {
         newAcc.push({ name: key, children });
       } else if (_.isEqual(getValue(obj1, key), getValue(obj2, key))) {
         const value = getValue(obj1, key);
-        newAcc.push({ name: key, status: '  ', value });
+        newAcc.push({ name: key, status: 'unchanged', value });
       } else {
         if (_.has(obj1, key)) {
+          if (_.has(obj2, key)) {
+            const value = [getValue(obj1, key), getValue(obj2, key)];
+            newAcc.push({ name: key, status: 'updated', value });
+            return newAcc;
+          }
           const value = getValue(obj1, key);
-          newAcc.push({ name: key, status: '- ', value });
+          newAcc.push({ name: key, status: 'removed', value });
         }
         if (_.has(obj2, key)) {
           const value = getValue(obj2, key);
-          newAcc.push({ name: key, status: '+ ', value });
+          newAcc.push({ name: key, status: 'added', value });
         }
       }
       return newAcc;
     }, []);
   };
   const tree = prepareTree(file1, file2);
-  if (formatter === 'stylish') {
-    return makeStylish(tree);
-  }
-  return makeStylish(tree);
+  return makeFormatting(tree, formatter);
 };
 
 export default findDiff;
