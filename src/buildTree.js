@@ -2,8 +2,9 @@ import _ from 'lodash';
 import { getValue, isObject } from './utilts.js';
 
 const buildTree = (obj1, obj2) => {
-  const mergedFile = Object.assign(_.cloneDeep(obj1), obj2);
-  const keys = _.sortBy(Object.keys(mergedFile));
+  const keys1 = Object.keys(obj1);
+  const keys2 = Object.keys(obj2);
+  const keys = _.sortBy(_.uniq([...keys1, ...keys2]));
   return keys.map((key) => {
     const oldValue = getValue(obj1, key);
     const newValue = getValue(obj2, key);
