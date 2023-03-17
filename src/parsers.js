@@ -1,21 +1,16 @@
 import jsYaml from 'js-yaml';
 
 const parseFile = (file, ext) => {
-  let parse;
   switch (ext) {
     case ('.json'):
-      parse = JSON.parse;
-      break;
-    case ('.yaml' || '.yml'):
-      parse = jsYaml.load;
-      break;
+      return JSON.parse(file);
+    case ('.yaml'):
+      return jsYaml.load(file);
     case ('.yml'):
-      parse = jsYaml.load;
-      break;
+      return jsYaml.load(file);
     default:
       throw new Error(`Unexpected file extension ${ext}`);
   }
-  return parse(file);
 };
 
 export default parseFile;
