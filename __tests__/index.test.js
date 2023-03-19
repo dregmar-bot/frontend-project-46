@@ -4,67 +4,15 @@ import {
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import genDiff from '../src/index.js';
+import stylishResult from '../__fixtures__/stylishResult.js';
+import plainResult from '../__fixtures__/plainResult.js';
+import jsonResult from '../__fixtures__/jsonResult.js';
 
 /* eslint-disable */
 let __filename;
 let __dirname;
 let getFixturePath;
-const stylishResult = '{\n'
-  + '    common: {\n'
-  + '      + follow: false\n'
-  + '        setting1: Value 1\n'
-  + '      - setting2: 200\n'
-  + '      - setting3: true\n'
-  + '      + setting3: null\n'
-  + '      + setting4: blah blah\n'
-  + '      + setting5: {\n'
-  + '            key5: value5\n'
-  + '        }\n'
-  + '        setting6: {\n'
-  + '            doge: {\n'
-  + '              - wow: \n'
-  + '              + wow: so much\n'
-  + '            }\n'
-  + '            key: value\n'
-  + '          + ops: vops\n'
-  + '        }\n'
-  + '    }\n'
-  + '    group1: {\n'
-  + '      - baz: bas\n'
-  + '      + baz: bars\n'
-  + '        foo: bar\n'
-  + '      - nest: {\n'
-  + '            key: value\n'
-  + '        }\n'
-  + '      + nest: str\n'
-  + '    }\n'
-  + '  - group2: {\n'
-  + '        abc: 12345\n'
-  + '        deep: {\n'
-  + '            id: 45\n'
-  + '        }\n'
-  + '    }\n'
-  + '  + group3: {\n'
-  + '        deep: {\n'
-  + '            id: {\n'
-  + '                number: 45\n'
-  + '            }\n'
-  + '        }\n'
-  + '        fee: 100500\n'
-  + '    }\n'
-  + '}';
-const plainResult = `Property 'common.follow' was added with value: false
-Property 'common.setting2' was removed
-Property 'common.setting3' was updated. From true to null
-Property 'common.setting4' was added with value: 'blah blah'
-Property 'common.setting5' was added with value: [complex value]
-Property 'common.setting6.doge.wow' was updated. From '' to 'so much'
-Property 'common.setting6.ops' was added with value: 'vops'
-Property 'group1.baz' was updated. From 'bas' to 'bars'
-Property 'group1.nest' was updated. From [complex value] to 'str'
-Property 'group2' was removed
-Property 'group3' was added with value: [complex value]`;
-const jsonResult = '[{"name":"common","status":"unchanged","children":[{"name":"follow","status":"added","newValue":false},{"name":"setting1","status":"unchanged","oldValue":"Value 1"},{"name":"setting2","status":"removed","oldValue":200},{"name":"setting3","status":"updated","oldValue":true,"newValue":null},{"name":"setting4","status":"added","newValue":"blah blah"},{"name":"setting5","status":"added","newValue":{"key5":"value5"}},{"name":"setting6","status":"unchanged","children":[{"name":"doge","status":"unchanged","children":[{"name":"wow","status":"updated","oldValue":"","newValue":"so much"}]},{"name":"key","status":"unchanged","oldValue":"value"},{"name":"ops","status":"added","newValue":"vops"}]}]},{"name":"group1","status":"unchanged","children":[{"name":"baz","status":"updated","oldValue":"bas","newValue":"bars"},{"name":"foo","status":"unchanged","oldValue":"bar"},{"name":"nest","status":"updated","oldValue":{"key":"value"},"newValue":"str"}]},{"name":"group2","status":"removed","oldValue":{"abc":12345,"deep":{"id":45}}},{"name":"group3","status":"added","newValue":{"deep":{"id":{"number":45}},"fee":100500}}]';
+
 
 beforeAll(() => {
   __filename = fileURLToPath(import.meta.url);
@@ -72,27 +20,14 @@ beforeAll(() => {
   getFixturePath = (filename) => join(__dirname, '..', '__fixtures__', filename);
 });
 
-test('genDiff in 2 jsons to default format', () => {
-  const pathToJson1 = getFixturePath('file1.json');
-  const pathToJson2 = getFixturePath('file2.json');
-  const diff = genDiff(pathToJson1, pathToJson2);
-  expect(diff).toStrictEqual(stylishResult);
-});
-test('genDiff in yml and yaml to stylish format', () => {
-  const pathToYml1 = getFixturePath('file1.yml');
-  const pathToYml2 = getFixturePath('file2.yaml');
-  const diff = genDiff(pathToYml1, pathToYml2, 'stylish');
-  expect(diff).toBe(stylishResult);
-});
-test('genDiff in json and yml to plain format', () => {
-  const pathToYml1 = getFixturePath('file1.yml');
-  const pathToJson2 = getFixturePath('file2.json');
-  const diff = genDiff(pathToYml1, pathToJson2, 'plain');
-  expect(diff).toBe(plainResult);
-});
-test('genDiff in 2 yml to json format', () => {
-  const pathToJson1 = getFixturePath('file1.yml');
-  const pathToJson2 = getFixturePath('file2.yaml');
-  const diff = genDiff(pathToJson1, pathToJson2, 'json');
-  expect(diff).toBe(jsonResult);
-});
+test.each([
+    { a: 'file1.json', b: 'file2.json', res: stylishResult, form: 'stylish' },
+    { a: 'file1.yml', b: 'file2.yaml', res: stylishResult, form: 'stylish' },
+    { a: 'file1.yml', b: 'file2.json', res: plainResult, form: 'plain'},
+    { a: 'file1.yml', b: 'file2.yaml', res: jsonResult, form: 'json'},
+])('diff between $a and $b in $form (stylish default) format', ({ a, b, res, form = 'stylish' }) => {
+  const path1 = getFixturePath(a);
+  const path2 = getFixturePath(b);
+  const diff = genDiff(path1, path2, form);
+  expect(diff).toStrictEqual(res);
+})
