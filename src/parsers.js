@@ -5,7 +5,6 @@ const parseFile = (file, ext) => {
     case ('.json'):
       return JSON.parse(file);
     case ('.yaml'):
-      return jsYaml.load(file);
     case ('.yml'):
       return jsYaml.load(file);
     default:
