@@ -25,7 +25,7 @@ test.each([
     { a: 'file1.yml', b: 'file2.yaml', res: stylishResult, form: 'stylish' },
     { a: 'file1.yml', b: 'file2.json', res: plainResult, form: 'plain'},
     { a: 'file1.yml', b: 'file2.yaml', res: jsonResult, form: 'json'},
-])('diff between $a and $b in $form (stylish default) format', ({ a, b, res, form = 'stylish' }) => {
+])('diff between $a and $b in $form format', ({ a, b, res, form = 'stylish' }) => {
   const path1 = getFixturePath(a);
   const path2 = getFixturePath(b);
   const diff = genDiff(path1, path2, form);
