@@ -15,24 +15,20 @@ const makePlain = (arr) => {
         name, status, children, oldValue, newValue,
       } = node;
       const currentPath = join(path, name).replace('/', '.');
-      if (status === 'added') {
-        const value = makeValue(newValue);
-        return `Property '${currentPath}' was added with value: ${value}`;
-      }
-      if (status === 'removed') {
-        return `Property '${currentPath}' was removed`;
-      }
-      if (status === 'updated') {
-        const before = makeValue(oldValue);
-        const after = makeValue(newValue);
-        return `Property '${currentPath}' was updated. From ${before} to ${after}`;
-      }
-      if (status === 'unchanged') {
-        if (_.has(node, 'children')) {
-          return iter(children, currentPath);
-        }
-        const value = oldValue;
-        return _.isObject(value) ? iter(value, currentPath) : [];
+      switch (status) {
+        case 'added':
+          return `Property '${currentPath}' was added with value: ${makeValue(newValue)}`;
+        case 'removed':
+          return `Property '${currentPath}' was removed`;
+        case 'updated':
+          return `Property '${currentPath}' was updated. From ${makeValue(oldValue)} to ${makeValue(newValue)}`;
+        case 'unchanged':
+          if (_.has(node, 'children')) {
+            return iter(children, currentPath);
+          }
+          return _.isObject(oldValue) ? iter(oldValue, currentPath) : [];
+        default:
+          throw new Error(`Unexpected status ${status}`);
       }
     }
     const lines = node.flatMap((item) => iter(item, path));
