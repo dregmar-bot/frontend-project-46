@@ -6,11 +6,10 @@ const findValue = (item) => {
   const { status, oldValue, newValue } = item;
   switch (status) {
     case 'removed':
+    case 'unchanged':
       return oldValue;
     case 'added':
       return newValue;
-    case 'unchanged':
-      return oldValue;
     default:
       throw new Error(`Unexpected status ${status}`);
   }
