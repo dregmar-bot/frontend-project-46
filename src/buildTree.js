@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { getValue, isObject } from './utilts.js';
+import { getValue, isObjectExceptArray } from './utilts.js';
 
 const buildTree = (obj1, obj2) => {
   const keys1 = Object.keys(obj1);
@@ -8,7 +8,7 @@ const buildTree = (obj1, obj2) => {
   return keys.map((key) => {
     const oldValue = getValue(obj1, key);
     const newValue = getValue(obj2, key);
-    if (isObject(getValue(obj1, key)) && isObject(getValue(obj2, key))) {
+    if (isObjectExceptArray(getValue(obj1, key)) && isObjectExceptArray(getValue(obj2, key))) {
       const children = buildTree(oldValue, newValue);
       return { name: key, status: 'unchanged', children };
     }
