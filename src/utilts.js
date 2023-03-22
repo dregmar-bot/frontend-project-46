@@ -1,8 +1,8 @@
 import _ from 'lodash';
 
 const getValue = (obj, key) => obj[key];
-const isObject = (value) => _.isObjectLike(value) && !Array.isArray(value);
+const isObjectExceptArray = (value) => _.isObjectLike(value) && !Array.isArray(value);
 
 export {
-  getValue, isObject,
+  getValue, isObjectExceptArray,
 };
