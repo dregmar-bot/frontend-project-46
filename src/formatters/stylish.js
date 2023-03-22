@@ -1,7 +1,4 @@
 import _ from 'lodash';
-import {
-  findValue,
-} from '../utilts.js';
 
 const findStylishStatus = (stat) => {
   switch (stat) {
@@ -18,6 +15,18 @@ const findStylishStatus = (stat) => {
   }
 };
 
+const findValue = (item) => {
+  const { status, oldValue, newValue } = item;
+  switch (status) {
+    case 'removed':
+    case 'unchanged':
+      return oldValue;
+    case 'added':
+      return newValue;
+    default:
+      throw new Error(`Unexpected status ${status}`);
+  }
+};
 const stringify = (value, currentDepth) => {
   const iter = (currentValue, depth) => {
     if (!_.isObject(currentValue)) {
