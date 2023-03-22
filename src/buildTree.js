@@ -15,12 +15,12 @@ const buildTree = (obj1, obj2) => {
     if (_.isEqual(getValue(obj1, key), getValue(obj2, key))) {
       return { name: key, status: 'unchanged', oldValue };
     }
+    if (_.has(obj1, key) && _.has(obj2, key)) {
+      return {
+        name: key, status: 'updated', oldValue, newValue,
+      };
+    }
     if (_.has(obj1, key)) {
-      if (_.has(obj2, key)) {
-        return {
-          name: key, status: 'updated', oldValue, newValue,
-        };
-      }
       return { name: key, status: 'removed', oldValue };
     }
     if (_.has(obj2, key)) {
