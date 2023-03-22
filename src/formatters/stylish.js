@@ -1,7 +1,7 @@
 import _ from 'lodash';
 
-const findStylishStatus = (stat) => {
-  switch (stat) {
+const findStylishStatus = (status) => {
+  switch (status) {
     case 'added':
       return '+ ';
     case 'removed':
@@ -11,7 +11,7 @@ const findStylishStatus = (stat) => {
     case 'updated':
       return '-+';
     default:
-      throw new Error(`Unexpected status ${stat}`);
+      throw new Error(`Unexpected status ${status}`);
   }
 };
 
