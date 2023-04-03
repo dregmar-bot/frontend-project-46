@@ -1,16 +1,19 @@
 import {
   test, expect,
 } from '@jest/globals';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import parseData from '../src/parsers.js';
 import genDiff from '../src/index.js';
-import stylishResult from '../__fixtures__/stylishResult.js';
-import plainResult from '../__fixtures__/plainResult.js';
-import jsonResult from '../__fixtures__/jsonResult.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const getFixturePath = (filename) => join(__dirname, '..', '__fixtures__', filename);
+const typeOfResultFixtures = 'json';
+const jsonResult = parseData(readFileSync(getFixturePath('jsonResult.json')), typeOfResultFixtures);
+const stylishResult = parseData(readFileSync(getFixturePath('stylishResult.json')), typeOfResultFixtures);
+const plainResult = parseData(readFileSync(getFixturePath('plainResult.json')), typeOfResultFixtures);
 
 test.each([
   {
