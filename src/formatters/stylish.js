@@ -6,6 +6,7 @@ const findStylishStatus = (status) => {
       return '+ ';
     case 'removed':
       return '- ';
+    case 'nested':
     case 'unchanged':
       return '  ';
     case 'updated':
@@ -24,31 +25,27 @@ const findValue = (item) => {
     case 'added':
       return newValue;
     default:
-      throw new Error(`Unexpected status ${status}`);
+      throw new Error(`Cannot find value for status ${status}`);
   }
 };
 const stringify = (value, currentDepth) => {
-  const iter = (currentValue, depth) => {
-    if (!_.isObject(currentValue)) {
-      return `${currentValue}`;
-    }
+  if (!_.isObject(value)) {
+    return `${value}`;
+  }
 
-    const countOfSpaces = 4;
-    const indentLength = countOfSpaces * depth;
-    const currentIndent = ' '.repeat(indentLength);
-    const braceIndent = ' '.repeat(indentLength - countOfSpaces);
-    const lines = Object
-      .entries(currentValue)
-      .map(([key, val]) => `${currentIndent}${key}: ${iter(val, depth + 1)}`);
+  const countOfSpaces = 4;
+  const indentLength = countOfSpaces * currentDepth;
+  const currentIndent = ' '.repeat(indentLength);
+  const braceIndent = ' '.repeat(indentLength - countOfSpaces);
+  const lines = Object
+    .entries(value)
+    .map(([key, val]) => `${currentIndent}${key}: ${stringify(val, currentDepth + 1)}`);
 
-    return [
-      '{',
-      ...lines,
-      `${braceIndent}}`,
-    ].join('\n');
-  };
-
-  return iter(value, currentDepth);
+  return [
+    '{',
+    ...lines,
+    `${braceIndent}}`,
+  ].join('\n');
 };
 
 const makeStylish = (arr) => {
@@ -64,14 +61,14 @@ const makeStylish = (arr) => {
         name, children, status, oldValue, newValue,
       } = item;
       const actualStatus = findStylishStatus(status);
-      if (_.has(item, 'children')) {
-        return `${currentIndent}${actualStatus}${name}: ${iter(children, depth + 1)}`;
+      switch (status) {
+        case 'nested':
+          return `${currentIndent}${actualStatus}${name}: ${iter(children, depth + 1)}`;
+        case 'updated':
+          return `${currentIndent}- ${name}: ${stringify(oldValue, depth + 1)}\n${currentIndent}+ ${name}: ${stringify(newValue, depth + 1)}`;
+        default:
+          return `${currentIndent}${actualStatus}${name}: ${stringify(findValue(item), depth + 1)}`;
       }
-      if (status === 'updated') {
-        return `${currentIndent}- ${name}: ${stringify(oldValue, depth + 1)}\n${currentIndent}+ ${name}: ${stringify(newValue, depth + 1)}`;
-      }
-      const value = findValue(item);
-      return `${currentIndent}${actualStatus}${name}: ${stringify(value, depth + 1)}`;
     });
     return ['{', ...lines, `${braceIndent}}`].join('\n');
   };
