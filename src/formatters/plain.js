@@ -10,10 +10,10 @@ const makeValue = (val) => {
 
 const makePlain = (arr) => {
   const iter = (node, path) => {
-    if (!Array.isArray(node)) {
+    const lines = node.flatMap((item) => {
       const {
         name, status, children, oldValue, newValue,
-      } = node;
+      } = item;
       const currentPath = join(path, name).replace('/', '.');
       switch (status) {
         case 'added':
@@ -22,16 +22,14 @@ const makePlain = (arr) => {
           return `Property '${currentPath}' was removed`;
         case 'updated':
           return `Property '${currentPath}' was updated. From ${makeValue(oldValue)} to ${makeValue(newValue)}`;
+        case 'nested':
+          return iter(children, currentPath);
         case 'unchanged':
-          if (_.has(node, 'children')) {
-            return iter(children, currentPath);
-          }
           return _.isObject(oldValue) ? iter(oldValue, currentPath) : [];
         default:
           throw new Error(`Unexpected status ${status}`);
       }
-    }
-    const lines = node.flatMap((item) => iter(item, path));
+    });
     return lines.join('\n');
   };
   return iter(arr, '');
